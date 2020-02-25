@@ -9,54 +9,54 @@ export class DefinedDataServiceMathNodesController implements IControllerBase {
 
     controllerPath = "/DefinedDataServiceMathNodes";
     initActions(app: Application) {
-        app.get(this.controllerPath, this.getAll);
-        app.get(`${this.controllerPath}/GetByGuid/:guid`, this.getByGuid);
-        app.get(`${this.controllerPath}/GetById/:id`, this.getById);
-        app.get(`${this.controllerPath}/GetByDataKey/:dataKey`, this.getByDataKey);
-        app.post(this.controllerPath, this.add);
+        app.get(this.controllerPath, this.getAll.bind(this));
+        app.get(`${this.controllerPath}/GetByGuid/:guid`, this.getByGuid.bind(this));
+        app.get(`${this.controllerPath}/GetById/:id`, this.getById.bind(this));
+        app.get(`${this.controllerPath}/GetByDataKey/:dataKey`, this.getByDataKey.bind(this));
+        app.post(this.controllerPath, this.add.bind(this));
     }
 
-    getAll = async (req: Request, res: Response, next: NextFunction) => {
+    async getAll (req: Request, res: Response, next: NextFunction) {
         try {
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IDefinedDataServiceMathNodes>(EnumCollections.DefinedDataServiceMathNodes);
             const result = await collection.find({}).toArray();
-            res.send(result);
+            res.json(result);
         } catch (error) {
             next(error);
         }
     }
-    getByGuid = async (req: Request, res: Response, next: NextFunction) => {
+    async getByGuid (req: Request, res: Response, next: NextFunction) {
         try {
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IDefinedDataServiceMathNodes>(EnumCollections.DefinedDataServiceMathNodes);
             const result = await collection.findOne( { Guid: req.params.guid });
-            res.send(result);
+            res.json(result);
         } catch (error) {
             next(error);
         }
     }
-    getById = async (req: Request, res: Response, next: NextFunction) => {
+    async getById (req: Request, res: Response, next: NextFunction) {
         try {
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IDefinedDataServiceMathNodes>(EnumCollections.DefinedDataServiceMathNodes);
             const result = await collection.findOne( { FollowId: req.params.id });
-            res.send(result);
+            res.json(result);
         } catch (error) {
             next(error);
         }
     }
-    getByDataKey = async (req: Request, res: Response, next: NextFunction) => {
+    async getByDataKey (req: Request, res: Response, next: NextFunction) {
         try {
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IDefinedDataServiceMathNodes>(EnumCollections.DefinedDataServiceMathNodes);
             const result = await collection.findOne( { DataKey: req.params.dataKey });
-            res.send(result);
+            res.json(result);
         } catch (error) {
             next(error);
         }
     }
-    add = async (req: Request, res: Response, next: NextFunction) => {
+    async add (req: Request, res: Response, next: NextFunction) {
         try {
             const nodeToSave = req.body as IDefinedDataServiceMathNodes;
             const dbHelper = new DbHelper();
@@ -70,7 +70,6 @@ export class DefinedDataServiceMathNodesController implements IControllerBase {
                     Description: nodeToSave.Description
                 }
             });
-            console.log(resultForUpdate.value == null);
             if (resultForUpdate.value == null) {
                 const resultForInsert = await collection.insert({
                     Guid: nodeToSave.Guid,
@@ -79,9 +78,12 @@ export class DefinedDataServiceMathNodesController implements IControllerBase {
                     Description: nodeToSave.Description,
                     ActiveCd: "A"
                 });
-                res.json(resultForInsert.result);
+                const insertedNode = await collection.findOne({
+                    _id: resultForInsert.insertedIds[0]
+                });
+                res.json(insertedNode);
             } else {
-                res.json(resultForUpdate.ok);
+                res.json(resultForUpdate.value);
             }
         } catch (error) {
             next(error);

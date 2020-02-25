@@ -9,9 +9,9 @@ export interface IOperandDefinitions {
     OperandType?: IOperandTypes;
     IsGrouping?: boolean;
     OperandDirection?: string;
-    ThereIsLeftParameter?: boolean;
-    ThereIsRightParameter?: boolean;
+    ParameterCount?: number;
     Description?: string;
     OperandRegexStr?: string;
     OperandParRegexStr?: string;
+    KeysForComplexConversion?: (string | number)[];
 }

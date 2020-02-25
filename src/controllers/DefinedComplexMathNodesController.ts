@@ -23,10 +23,11 @@ export class DefinedComplexMathNodesController implements IControllerBase {
 
     controllerPath = "/DefinedComplexMathNodes";
     initActions(app: Application) {
-        app.get(this.controllerPath, this.getAll);
-        app.get(`${this.controllerPath}/ById/:id`, this.getById);
-        app.get(`${this.controllerPath}/ByParentGuid/:guid`, this.getByParentGuidId);
-        app.post(this.controllerPath, this.add);
+        app.get(this.controllerPath, this.getAll.bind(this));
+        app.get(`${this.controllerPath}/ById/:id`, this.getById.bind(this));
+        app.get(`${this.controllerPath}/ByParentGuid/:guid`, this.getByParentGuidId.bind(this));
+        app.post(this.controllerPath, this.add.bind(this));
+
     }
 
     async getAll(req: Request, res: Response, next: NextFunction) {
@@ -34,12 +35,12 @@ export class DefinedComplexMathNodesController implements IControllerBase {
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IDefinedComplexMathNodes>(EnumCollections.DefinedComplexMathNodes);
             const result = await collection.find({}).toArray();
-            res.send(result);
+            res.json(result);
         } catch (error) {
             next(error);
         }
     }
-    getById = async (req: Request, res: Response, next: NextFunction) => {
+    async getById (req: Request, res: Response, next: NextFunction) {
         try {
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IDefinedComplexMathNodes>(EnumCollections.DefinedComplexMathNodes);
@@ -51,7 +52,7 @@ export class DefinedComplexMathNodesController implements IControllerBase {
             next(error);
         }
     }
-    getByParentGuidId = async (req: Request, res: Response, next: NextFunction) => {
+    async getByParentGuidId (req: Request, res: Response, next: NextFunction) {
         try {
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IDefinedComplexMathNodes>(EnumCollections.DefinedComplexMathNodes);
@@ -63,7 +64,7 @@ export class DefinedComplexMathNodesController implements IControllerBase {
             next(error);
         }
     }
-    add = async (req: Request, res: Response, next: NextFunction) => {
+    async add (req: Request, res: Response, next: NextFunction) {
         try {
             const nodeToSave = req.body as IDataForSave;
             const dbHelper = new DbHelper();
@@ -92,7 +93,7 @@ export class DefinedComplexMathNodesController implements IControllerBase {
                 if (nodeToSave.OperandParameters != null && nodeToSave.OperandParameters.length > 0) {
                     await this.addChildren(nodeToSave.OperandParameters, collection);
                 }
-                res.json(result);
+                res.json(result.value);
             } else {
                 const result = await collection.insert({
                     Guid: nodeToSave.Guid,
@@ -112,14 +113,14 @@ export class DefinedComplexMathNodesController implements IControllerBase {
                 if (nodeToSave.OperandParameters != null && nodeToSave.OperandParameters.length > 0) {
                     await this.addChildren(nodeToSave.OperandParameters, collection);
                 }
-                res.json(result);
+                res.json(result.insertedIds);
             }
         } catch (error) {
             next(error);
         }
     }
 
-    deleteChildren = async (parentGuid: string, collection: Collection<IDefinedComplexMathNodes>) => {
+    private async deleteChildren (parentGuid: string, collection: Collection<IDefinedComplexMathNodes>) {
         const childs = await collection.find({
             ParentGuid: parentGuid
         });
@@ -132,7 +133,7 @@ export class DefinedComplexMathNodesController implements IControllerBase {
             }
         });
     }
-    addChildren = async (children: IDataForSave[], collection: Collection<IDefinedComplexMathNodes>) => {
+    private async addChildren (children: IDataForSave[], collection: Collection<IDefinedComplexMathNodes>) {
         let childOrder = 1;
         children.forEach(async (child) => {
             await collection.insert({

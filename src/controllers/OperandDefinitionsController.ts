@@ -9,16 +9,16 @@ export class OperandDefinitionsController implements IControllerBase {
 
     controllerPath = "/OperandDefinitions";
     initActions(app: Application) {
-        app.get(this.controllerPath, this.getAll);
-        app.get(`${this.controllerPath}/ByGuid/:guid`, this.getByGuid);
-        app.get(`${this.controllerPath}/ByKey/:key`, this.getByKey);
-        app.post(this.controllerPath, this.add);
+        app.get(this.controllerPath, this.getAll.bind(this));
+        app.get(`${this.controllerPath}/ByGuid/:guid`, this.getByGuid.bind(this));
+        app.get(`${this.controllerPath}/ByKey/:key`, this.getByKey.bind(this));
+        app.post(this.controllerPath, this.add.bind(this));
     }
 
     async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             const dbHelper = new DbHelper();
-            const collection = await dbHelper.GetCollection<IOperandDefinitions>(EnumCollections.OperandDefinitions);
+            const collection = await dbHelper.GetCollection<IOperandDefinitions>(EnumCollections.OperandDefinitions);            
             const queryResult = await collection.aggregate([
                 {
                     $lookup: {
@@ -39,15 +39,15 @@ export class OperandDefinitionsController implements IControllerBase {
                     Key: o.Key,
                     IsGrouping: o.IsGrouping,
                     OperandDirection: o.OperandDirection,
-                    ThereIsLeftParameter: o.ThereIsLeftParameter,
-                    ThereIsRightParameter: o.ThereIsRightParameter,
+                    ParameterCount: o.ParameterCount,
                     Description: o.Description,
                     OperandRegexStr: o.OperandRegexStr,
                     OperandParRegexStr: o.OperandParRegexStr,
                     OperandType: {
                         Guid: o.OperandType.Guid,
                         EnumKey: o.OperandType.EnumKey
-                    }
+                    },
+                    KeysForComplexConversion: o.KeysForComplexConversion,
                 };
                 return data;
             });
@@ -83,15 +83,15 @@ export class OperandDefinitionsController implements IControllerBase {
                     Key: o.Key,
                     IsGrouping: o.IsGrouping,
                     OperandDirection: o.OperandDirection,
-                    ThereIsLeftParameter: o.ThereIsLeftParameter,
-                    ThereIsRightParameter: o.ThereIsRightParameter,
+                    ParameterCount: o.ParameterCount,
                     Description: o.Description,
                     OperandRegexStr: o.OperandRegexStr,
                     OperandParRegexStr: o.OperandParRegexStr,
                     OperandType: {
                         Guid: o.OperandType.Guid,
                         EnumKey: o.OperandType.EnumKey
-                    }
+                    },
+                    KeysForComplexConversion: o.KeysForComplexConversion,
                 };
                 return data;
             });
@@ -127,15 +127,15 @@ export class OperandDefinitionsController implements IControllerBase {
                     Key: o.OperandDefinition.Key,
                     IsGrouping: o.OperandDefinition.IsGrouping,
                     OperandDirection: o.OperandDefinition.OperandDirection,
-                    ThereIsLeftParameter: o.OperandDefinition.ThereIsLeftParameter,
-                    ThereIsRightParameter: o.OperandDefinition.ThereIsRightParameter,
+                    ParameterCount: o.ParameterCount,
                     Description: o.OperandDefinition.Description,
                     OperandRegexStr: o.OperandDefinition.OperandRegexStr,
                     OperandParRegexStr: o.OperandDefinition.OperandParRegexStr,
                     OperandType: {
                         Guid: o.Guid,
                         EnumKey: o.EnumKey
-                    }
+                    },
+                    KeysForComplexConversion: o.KeysForComplexConversion,
                 };
                 return data;
             });
@@ -153,11 +153,11 @@ export class OperandDefinitionsController implements IControllerBase {
                 OperandTypeRef?: string;
                 IsGrouping?: boolean;
                 OperandDirection?: string;
-                ThereIsLeftParameter?: boolean;
-                ThereIsRightParameter?: boolean;
+                ParameterCount?: number;
                 Description?: string;
                 OperandRegexStr?: string;
                 OperandParRegexStr?: string;
+                KeysForComplexConversion?: (string | number)[];
             }[]).map((o) => {
                 const data: IOperandDefinitions = {
                     Guid: o.Guid,
@@ -169,18 +169,18 @@ export class OperandDefinitionsController implements IControllerBase {
                     } : undefined,
                     IsGrouping: o.IsGrouping,
                     OperandDirection: o.OperandDirection,
-                    ThereIsLeftParameter: o.ThereIsLeftParameter,
-                    ThereIsRightParameter: o.ThereIsRightParameter,
+                    ParameterCount: o.ParameterCount,
                     Description: o.Description,
                     OperandRegexStr: o.OperandRegexStr,
-                    OperandParRegexStr: o.OperandParRegexStr
+                    OperandParRegexStr: o.OperandParRegexStr,
+                    KeysForComplexConversion: o.KeysForComplexConversion,
                 };
                 return data;
             });
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IOperandDefinitions>(EnumCollections.OperandDefinitions);
             const result = await collection.insertMany(datas);
-            res.json(result);
+            res.json(result.insertedIds);
         } catch (error) {
             next(error);
         }

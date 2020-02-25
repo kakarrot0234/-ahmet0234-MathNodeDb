@@ -22,4 +22,7 @@ export class DbHelper {
     public async GetCollection<T>(collection: EnumCollections): Promise<MongoDb.Collection<T>> {
         return (await this.getDb()).collection<T>(collection);
     }
+    public static CrateObjectId(id?: string) {
+        return new MongoDb.ObjectID(id);
+    }
 }

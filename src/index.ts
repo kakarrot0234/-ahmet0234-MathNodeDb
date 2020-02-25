@@ -22,6 +22,7 @@ class App {
     }
 
     Listen() {
+        this.m_App.set("json spaces", 2);
         if (this.m_MiddleWares != null) {
             this.m_MiddleWares.forEach((middleWare) => {
                 this.m_App.use(middleWare);
@@ -52,10 +53,10 @@ function headerResponse(req: Request, res: Response, next: NextFunction) {
 function requestResponseTimer(req: Request, res: Response, next: NextFunction) {
     console.log(`Requested ${req.method}-${req.url} at ${new Date()}`);
     res.on("finish", () => {
-        console.log(`Responded with ${res.statusCode} at ${new Date()}`);
+        console.log(`Responded for ${req.method}-${req.url} with ${res.statusCode} at ${new Date()}`);
     });
     res.on("error", (error) => {
-        console.log(`Responded with error at ${new Date()}. Error: ${error.name}-${error.message}-${error.stack}`);
+        console.log(`Responded for ${req.method}-${req.url} with error at ${new Date()}. Error: ${error.name}-${error.message}-${error.stack}`);
     })
     next();
 }
@@ -63,8 +64,8 @@ function requestResponseTimer(req: Request, res: Response, next: NextFunction) {
 const app = new App({
     port: 8080,
     middleWares: [
-        headerResponse,
         json(),
+        headerResponse,
         requestResponseTimer,
     ],
     controllers: [

@@ -9,18 +9,22 @@ export class OperandTypesController implements IControllerBase {
 
     controllerPath = "/OperandTypes";
     initActions(app: Application) {
-        app.get(this.controllerPath, this.getAll);
-        app.get(`${this.controllerPath}/ByGuid/:guid`, this.getByGuid);
-        app.get(`${this.controllerPath}/ByEnumKey/:enumKey`, this.getByEnumKey);
-        app.post(this.controllerPath, this.add);
+        app.get(this.controllerPath, this.getAll.bind(this));
+        app.get(`${this.controllerPath}/ByGuid/:guid`, this.getByGuid.bind(this));
+        app.get(`${this.controllerPath}/ByEnumKey/:enumKey`, this.getByEnumKey.bind(this));
+        app.post(this.controllerPath, this.add.bind(this));
     }
 
     async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IOperandTypes>(EnumCollections.OperandTypes);
-            const result = await collection.find({}).toArray();
-            res.send(JSON.stringify(result, null, 4));
+            const result = await collection.aggregate([{
+                $project: {
+                    _id: 0,
+                }
+            }]).toArray();
+            res.json(result);
         } catch (error) {
             next(error);
         }
@@ -29,10 +33,19 @@ export class OperandTypesController implements IControllerBase {
         try {
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IOperandTypes>(EnumCollections.OperandTypes);
-            const result = await collection.find({
-                Guid: req.params.guid
-            }).toArray();
-            res.send(JSON.stringify(result, null, 4));
+            const result = await collection.aggregate([
+                {
+                    $match: {
+                        Guid: req.params.guid
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0
+                    }
+                }
+            ]).toArray();
+            res.json(result);
         } catch (error) {
             next(error);
         }
@@ -41,10 +54,19 @@ export class OperandTypesController implements IControllerBase {
         try {
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IOperandTypes>(EnumCollections.OperandTypes);
-            const result = await collection.find({
-                EnumKey: req.params.enumKey
-            }).toArray();
-            res.send(JSON.stringify(result, null, 4));
+            const result = await collection.aggregate([
+                {
+                    $match: {
+                        EnumKey: req.params.enumKey
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0
+                    }
+                }
+            ]).toArray();
+            res.json(result);
         } catch (error) {
             next(error);
         }
@@ -55,7 +77,7 @@ export class OperandTypesController implements IControllerBase {
             const dbHelper = new DbHelper();
             const collection = await dbHelper.GetCollection<IOperandTypes>(EnumCollections.OperandTypes);
             const result = await collection.insertMany(datas);
-            res.send(JSON.stringify(result, null, 4));
+            res.json(result.insertedIds);
         } catch (error) {
             next(error);
         }
