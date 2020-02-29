@@ -39,15 +39,15 @@ export class OperandDefinitionsController implements IControllerBase {
                     Key: o.Key,
                     IsGrouping: o.IsGrouping,
                     OperandDirection: o.OperandDirection,
-                    ThereIsLeftParameter: o.ThereIsLeftParameter,
-                    ThereIsRightParameter: o.ThereIsRightParameter,
+                    ParameterCount: o.ParameterCount,
                     Description: o.Description,
                     OperandRegexStr: o.OperandRegexStr,
                     OperandParRegexStr: o.OperandParRegexStr,
                     OperandType: {
                         Guid: o.OperandType.Guid,
                         EnumKey: o.OperandType.EnumKey
-                    }
+                    },
+                    KeysForComplexConversion: o.KeysForComplexConversion,
                 };
                 return data;
             });
@@ -83,15 +83,15 @@ export class OperandDefinitionsController implements IControllerBase {
                     Key: o.Key,
                     IsGrouping: o.IsGrouping,
                     OperandDirection: o.OperandDirection,
-                    ThereIsLeftParameter: o.ThereIsLeftParameter,
-                    ThereIsRightParameter: o.ThereIsRightParameter,
+                    ParameterCount: o.ParameterCount,
                     Description: o.Description,
                     OperandRegexStr: o.OperandRegexStr,
                     OperandParRegexStr: o.OperandParRegexStr,
                     OperandType: {
                         Guid: o.OperandType.Guid,
                         EnumKey: o.OperandType.EnumKey
-                    }
+                    },
+                    KeysForComplexConversion: o.KeysForComplexConversion,
                 };
                 return data;
             });
@@ -121,21 +121,22 @@ export class OperandDefinitionsController implements IControllerBase {
                 }
             ]).toArray();
             const result: IOperandDefinitions[] = queryResult.map((o: any) => {
+                console.log(o);
                 const data: IOperandDefinitions = {
                     Guid: o.OperandDefinition.Guid,
                     Precedence: o.OperandDefinition.Precedence,
                     Key: o.OperandDefinition.Key,
                     IsGrouping: o.OperandDefinition.IsGrouping,
                     OperandDirection: o.OperandDefinition.OperandDirection,
-                    ThereIsLeftParameter: o.OperandDefinition.ThereIsLeftParameter,
-                    ThereIsRightParameter: o.OperandDefinition.ThereIsRightParameter,
+                    ParameterCount: o.OperandDefinition.ParameterCount,
                     Description: o.OperandDefinition.Description,
                     OperandRegexStr: o.OperandDefinition.OperandRegexStr,
                     OperandParRegexStr: o.OperandDefinition.OperandParRegexStr,
                     OperandType: {
                         Guid: o.Guid,
                         EnumKey: o.EnumKey
-                    }
+                    },
+                    KeysForComplexConversion: o.OperandDefinition.KeysForComplexConversion,
                 };
                 return data;
             });
@@ -153,11 +154,11 @@ export class OperandDefinitionsController implements IControllerBase {
                 OperandTypeRef?: string;
                 IsGrouping?: boolean;
                 OperandDirection?: string;
-                ThereIsLeftParameter?: boolean;
-                ThereIsRightParameter?: boolean;
+                ParameterCount?: number;
                 Description?: string;
                 OperandRegexStr?: string;
                 OperandParRegexStr?: string;
+                KeysForComplexConversion?: (string | number)[];
             }[]).map((o) => {
                 const data: IOperandDefinitions = {
                     Guid: o.Guid,
@@ -169,11 +170,11 @@ export class OperandDefinitionsController implements IControllerBase {
                     } : undefined,
                     IsGrouping: o.IsGrouping,
                     OperandDirection: o.OperandDirection,
-                    ThereIsLeftParameter: o.ThereIsLeftParameter,
-                    ThereIsRightParameter: o.ThereIsRightParameter,
+                    ParameterCount: o.ParameterCount,
                     Description: o.Description,
                     OperandRegexStr: o.OperandRegexStr,
-                    OperandParRegexStr: o.OperandParRegexStr
+                    OperandParRegexStr: o.OperandParRegexStr,
+                    KeysForComplexConversion: o.KeysForComplexConversion,
                 };
                 return data;
             });

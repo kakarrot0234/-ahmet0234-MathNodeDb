@@ -9,7 +9,8 @@ export class IdSequencesController implements IControllerBase {
 
     controllerPath = "/IdSequences";
     initActions(app: Application) {
-        app.get(`${this.controllerPath}/DataServiceNode`, this.getDataServiceNodeId);
+        app.get(`${this.controllerPath}/DataServiceNode`, this.getDataServiceNodeId.bind(this));
+        app.get(`${this.controllerPath}/ComplexMathNode`, this.getComplexMathNodeId.bind(this));
     }
 
     async getDataServiceNodeId(req: Request, res: Response, next: NextFunction) {
@@ -25,6 +26,25 @@ export class IdSequencesController implements IControllerBase {
                 res.send(JSON.stringify(sequence.value.NextId, null, 4));
             } else {
                 res.send(JSON.stringify(0, null, 4));
+            }
+
+        } catch (error) {
+            next(error);
+        }
+    }
+    async getComplexMathNodeId(req: Request, res: Response, next: NextFunction) {
+        try {
+            const dbHelper = new DbHelper();
+            const collection = await dbHelper.GetCollection<IIdSequences>(EnumCollections.IdSequence);
+            const sequence = await collection.findOneAndUpdate({
+                Name: "ComplexMathNode"
+            }, {
+                $inc: { NextId: 1 }
+            });
+            if (sequence.value != null) {
+                res.json(sequence.value.NextId);
+            } else {
+                res.json(0);
             }
 
         } catch (error) {
